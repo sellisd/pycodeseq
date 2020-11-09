@@ -29,7 +29,7 @@ def count_levels(python_file, output):
 
     Args:
         python_file (string): File to parse
-        output (string): File to append the output
+        output (file object): File to append the output
     """
     try:
         with tokenize.open(python_file) as source:
@@ -40,10 +40,10 @@ def count_levels(python_file, output):
                     functions = myclass.body
                     class_lines = myclass.end_lineno - myclass.lineno
                     for function in functions:
-                        if isinstance(function,
-                                      ast.FunctionDef)
-                        or isinstance(function,
-                                      ast.AsyncFunctionDef):
+                        if (isinstance(function,
+                                       ast.FunctionDef)
+                            or isinstance(function,
+                                          ast.AsyncFunctionDef)):
                             output.write("\t".join([str(python_file),
                                                     myclass.name,
                                                     str(class_lines),
@@ -72,7 +72,7 @@ def count(output, method):
                                        'function_lines']))
             for f in tqdm(python_files):
                 if f.is_file():
-                    count_levels(f, output)
+                    count_levels(f, data_file)
     elif method == "tokens":
         frequencies = Counter()
         for f in tqdm(python_files):
