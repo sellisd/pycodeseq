@@ -11,6 +11,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        codeseq=codeseq:count
+        codeseq=codeseq.codeseq:count
     ''',
 )

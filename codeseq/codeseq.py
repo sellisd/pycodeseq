@@ -62,27 +62,29 @@ def count_levels(python_file, output):
 @click.option('--output', default='data.tsv', help='Output file')
 @click.option('--method', default='levels', help='count levels or tokens')
 def count(output, method):
-    python_files = Path(input_path).glob("**/*.py")
-    if method == "levels":
-        with open(output, 'w') as data_file:
-            data_file.write("\t".join(['file',
-                                       'class',
-                                       'class_lines',
-                                       'function',
-                                       'function_lines']))
-            for f in tqdm(python_files):
-                if f.is_file():
-                    count_levels(f, data_file)
-    elif method == "tokens":
-        frequencies = Counter()
-        for f in tqdm(python_files):
-            if f.is_file():
-                token_distribution(f, frequencies)
-        with open(output, 'w') as data_file:
-            data_file.write("\t".join(['rank',
-                                       'token_length',
-                                       'counts']))
-            for i, (key, value) in enumerate(frequencies.most_common()):
-                data_file.write(i, len(key), value, sep="\t")
+    for repository_owner in tqdm(list(Path(input_path).iterdir())):
+        for repository_dir in repository_owner.iterdir():
+            python_files = Path(repository_dir).glob("**/*.py")
+            if method == "levels":
+                with open(output, 'w') as data_file:
+                    data_file.write("\t".join(['file',
+                                               'class',
+                                               'class_lines',
+                                               'function',
+                                               'function_lines']))
+                    for f in python_files:
+                        if f.is_file():
+                            count_levels(f, data_file)
+            elif method == "tokens":
+                frequencies = Counter()
+                for f in python_files:
+                    if f.is_file():
+                        token_distribution(f, frequencies)
+                with open(output, 'w') as data_file:
+                    data_file.write("\t".join(['rank',
+                                               'token_length',
+                                               'counts']))
+                    for i, (key, value) in enumerate(frequencies.most_common()):
+                        data_file.write(i, len(key), value, sep="\t")
     else:
         print("Unknown method")
