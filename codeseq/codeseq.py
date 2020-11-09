@@ -86,5 +86,5 @@ def count(output, method):
                                                'counts']))
                     for i, (key, value) in enumerate(frequencies.most_common()):
                         data_file.write(i, len(key), value, sep="\t")
-    else:
-        print("Unknown method")
+            else:
+                print("Unknown method")
