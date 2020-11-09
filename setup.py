@@ -2,18 +2,12 @@ from setuptools import setup
 
 setup(
     name="codeseq",
-    version='0.1',
+    version='0.1.0',
     py_modules=['codeseq'],
     install_requires=[
-        'sys',
-        'ast',
-        'pathlib',
-        'itertools',
-        'tokenize',
-        'pandas',
-        'click',
-        'collections',
-        'tqdm'
+        'pandas==1.1.4',
+        'click==7.1.2',
+        'tqdm==4.51.0'
     ],
     entry_points='''
         [console_scripts]
