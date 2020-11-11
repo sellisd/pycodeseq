@@ -1,4 +1,5 @@
 import ast
+import csv
 import itertools
 import sys
 import tokenize
@@ -29,7 +30,7 @@ def count_levels(python_file, output):
 
     Args:
         python_file (string): File to parse
-        output (file object): File to append the output
+        output (object): csv.writer object
     """
     try:
         with tokenize.open(python_file) as source:
@@ -44,14 +45,13 @@ def count_levels(python_file, output):
                                        ast.FunctionDef)
                             or isinstance(function,
                                           ast.AsyncFunctionDef)):
-                            output.write("\t".join([str(python_file),
-                                                    myclass.name,
-                                                    str(class_lines),
-                                                    function.name,
-                                                    str(function.end_lineno
-                                                        - function.lineno + 1)]
-                                                   )
-                                         )
+                            output.writerow([str(python_file),
+                                             myclass.name,
+                                             str(class_lines),
+                                             function.name,
+                                             str(function.end_lineno
+                                                 - function.lineno + 1)]
+                                            )
             except SyntaxError:
                 print(f"skipping {python_file}", file=sys.stderr)
     except SyntaxError:
@@ -62,29 +62,28 @@ def count_levels(python_file, output):
 @click.option('--output', default='data.tsv', help='Output file')
 @click.option('--method', default='levels', help='count levels or tokens')
 def count(output, method):
-    for repository_owner in tqdm(list(Path(input_path).iterdir())):
-        for repository_dir in repository_owner.iterdir():
-            python_files = Path(repository_dir).glob("**/*.py")
-            if method == "levels":
-                with open(output, 'w') as data_file:
-                    data_file.write("\t".join(['file',
-                                               'class',
-                                               'class_lines',
-                                               'function',
-                                               'function_lines']))
+    with open(output, 'w', newline='') as data_file:
+        outwriter = csv.writer(data_file, delimiter="\t")
+        header = []
+        if method == "levels":
+            header = ['file', 'class', 'class_lines', 'function',
+                      'function_lines']
+        elif method == "tokens":
+            header = ['rank', 'token_length', 'counts']
+        else:
+            print("Unknown method")
+        outwriter.writerow(header)
+        for repository_owner in tqdm(list(Path(input_path).iterdir())):
+            for repository_dir in repository_owner.iterdir():
+                python_files = Path(repository_dir).glob("**/*.py")
+                if method == "levels":
                     for f in python_files:
                         if f.is_file():
-                            count_levels(f, data_file)
-            elif method == "tokens":
-                frequencies = Counter()
-                for f in python_files:
-                    if f.is_file():
-                        token_distribution(f, frequencies)
-                with open(output, 'w') as data_file:
-                    data_file.write("\t".join(['rank',
-                                               'token_length',
-                                               'counts']))
-                    for i, (key, value) in enumerate(frequencies.most_common()):
-                        data_file.write(i, len(key), value, sep="\t")
-            else:
-                print("Unknown method")
+                            count_levels(f, outwriter)
+                elif method == "tokens":
+                    frequencies = Counter()
+                    for f in python_files:
+                        if f.is_file():
+                            token_distribution(f, frequencies)
+                        for i, (key, value) in enumerate(frequencies.most_common()):
+                            outwriter.writerow([i, len(key), value])
