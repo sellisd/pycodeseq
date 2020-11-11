@@ -10,8 +10,6 @@ import click
 import pandas as pd
 from tqdm import tqdm
 
-input_path = Path('/mnt/Data/scratch')
-
 
 def token_distribution(python_file, frequencies):
     """Count token frequency in file
@@ -59,9 +57,18 @@ def count_levels(python_file, output):
 
 
 @click.command()
+@click.option('--input_path', default='/mnt/Data/scratch',
+              help='Path where input will be scanned recursively')
 @click.option('--output', default='data.tsv', help='Output file')
-@click.option('--method', default='levels', help='count levels or tokens')
-def count(output, method):
+@click.option('--method', default='levels', help='[levels|tokens]')
+def count(input_path, output, method):
+    """Count levels or tokens in multiple repositories
+
+    Example usage:
+
+    codeseq --input_path /mnt/Data/scratch --output data.tsv --method levels
+
+    """
     with open(output, 'w', newline='') as data_file:
         outwriter = csv.writer(data_file, delimiter="\t")
         header = []
