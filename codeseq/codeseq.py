@@ -1,6 +1,7 @@
 import ast
 import csv
 import itertools
+import nbformat
 import sys
 import tokenize
 from collections import Counter
@@ -56,6 +57,16 @@ def count_levels(python_file, output):
         print(f"skipping {python_file} tokenize error!", file=sys.stderr)
 
 
+def parse_notebooks(notebook_file, output):
+    try:
+        notebook_object = nbformat.read(notebook_file, as_version=4)
+        for cell in notebook_object.cells:
+            if cell.cell_type == "code":
+                output.writerow([notebook_file, len(cell.source.split('\n'))])
+    except nbformat.reader.NotJSONError:
+        print(f"skipping {notebook_file}", file=sys.stderr)
+
+
 @click.command()
 @click.option('--input_path', default='/mnt/Data/scratch',
               help='Path where input will be scanned recursively')
@@ -75,14 +86,19 @@ def count(input_path, output, method):
         if method == "levels":
             header = ['file', 'class', 'class_lines', 'function',
                       'function_lines']
+            extension = ".py"
         elif method == "tokens":
             header = ['rank', 'token_length', 'counts']
+            extension = "py"
+        elif method == "cells":
+            header = ['file', 'cell_lines']
+            extension = "ipynb"
         else:
             print("Unknown method")
         outwriter.writerow(header)
         for repository_owner in tqdm(list(Path(input_path).iterdir())):
             for repository_dir in repository_owner.iterdir():
-                python_files = Path(repository_dir).glob("**/*.py")
+                python_files = Path(repository_dir).glob(f"**/*{extension}")
                 if method == "levels":
                     for f in python_files:
                         if f.is_file():
@@ -94,3 +110,7 @@ def count(input_path, output, method):
                             token_distribution(f, frequencies)
                         for i, (key, value) in enumerate(frequencies.most_common()):
                             outwriter.writerow([i, len(key), value])
+                elif method == "cells":
+                    for f in python_files:
+                        if f.is_file():
+                            parse_notebooks(f, outwriter)

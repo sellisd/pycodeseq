@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="codeseq",
-    version='0.1.0',
+    version='0.220',
     py_modules=['codeseq'],
     install_requires=[
         'pandas==1.1.4',
