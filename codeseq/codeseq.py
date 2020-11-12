@@ -61,8 +61,9 @@ def parse_notebooks(notebook_file, output):
     try:
         notebook_object = nbformat.read(notebook_file, as_version=4)
         for cell in notebook_object.cells:
-            if cell.cell_type == "code":
-                output.writerow([notebook_file, len(cell.source.split('\n'))])
+            output.writerow([notebook_file,
+                             len(cell.source.split('\n')),
+                             cell.cell_type])
     except nbformat.reader.NotJSONError:
         print(f"skipping {notebook_file}", file=sys.stderr)
 
@@ -71,7 +72,7 @@ def parse_notebooks(notebook_file, output):
 @click.option('--input_path', default='/mnt/Data/scratch',
               help='Path where input will be scanned recursively')
 @click.option('--output', default='data.tsv', help='Output file')
-@click.option('--method', default='levels', help='[levels|tokens]')
+@click.option('--method', default='levels', help='[levels|tokens|cells]')
 def count(input_path, output, method):
     """Count levels or tokens in multiple repositories
 
@@ -91,7 +92,7 @@ def count(input_path, output, method):
             header = ['rank', 'token_length', 'counts']
             extension = "py"
         elif method == "cells":
-            header = ['file', 'cell_lines']
+            header = ['file', 'cell_lines', 'cell_type']
             extension = "ipynb"
         else:
             print("Unknown method")
