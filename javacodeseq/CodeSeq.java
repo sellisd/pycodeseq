@@ -17,56 +17,66 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.lang.Math;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 
-//javac -classpath ../javaparser/javaparser-core/target/classes/:. ./CodeSeq.java
+// javac -classpath ../../javaparser/javaparser-core/target/classes/:. ./CodeSeq.java 
+// java -cp ../../javaparser/javaparser-core/target/classes/:. CodeSeq
+
 
 public class CodeSeq {
 
-  private static final String FILE_PATH = "./ReversePolishNotation.java";
+  /** private static String outputFilePath = "./java_data.tsv";*/
 
-  public static void main(String[] args) throws Exception {
-    System.out.println("File\tClass\tMethod");
-    ListAllJavaFiles("../..");
-    // FileInputStream f = new FileInputStream(FILE_PATH);
-    // CompilationUnit cu = StaticJavaParser.parse(f);
-
-    // VoidVisitor<?> methodNameVisitor = new MethodNamePrinter();
-    // methodNameVisitor.visit(cu, null);
-
+   public static void main(String[] args) throws Exception {
+    String outputFilePath = "./java_data.tsv";
+    String RootPath = "../..";
+    try{
+      FileWriter outputFile = new FileWriter(outputFilePath);
+      outputFile.write("class\tclass_lines\tmethod\tmethod_lines\n");
+      try(Stream<Path> walk = Files.walk(Paths.get(RootPath))){
+        List<String> result = walk.map(x -> x.toString()).filter(f->f.endsWith(".java")).collect(Collectors.toList());
+        for(String fileName : result){
+          FileInputStream f = new FileInputStream(fileName);
+          try{
+            CompilationUnit cu = StaticJavaParser.parse(f);
+            VoidVisitor<FileWriter> methodNamePrinter = new MethodNamePrinter();
+            methodNamePrinter.visit(cu, outputFile);
+          }
+          catch(ParseProblemException e){
+            System.out.println("Skipping file: " + fileName);
+          }
+        }
+        outputFile.close();
+      } catch(IOException e){
+        e.printStackTrace();
+      }
+    }catch(IOException ex){
+      System.out.println("Error writing to file");
+      ex.printStackTrace();
+    }
   }
 
-  private static class MethodNamePrinter extends VoidVisitorAdapter<Void> {
+  private static class MethodNamePrinter extends VoidVisitorAdapter<FileWriter> {
     @Override
-    public void visit(ClassOrInterfaceDeclaration cl, Void arg) {
+    public void visit(ClassOrInterfaceDeclaration cl, FileWriter arg) {
       super.visit(cl, arg);
-      for (MethodDeclaration method : cl.getMethods()) {
+    Range class_range = cl.getRange().get();
+    int class_loc = Math.max(class_range.begin.line, class_range.end.line) - Math.min(class_range.begin.line, class_range.end.line) + 1;
+    for (MethodDeclaration method : cl.getMethods()) {
         Range r = method.getRange().get();
         int loc = Math.max(r.begin.line, r.end.line) - Math.min(r.begin.line, r.end.line) + 1;
-        System.out.println(FILE_PATH + "\t" + cl.getName() + "\t" + method.getName() + "\t" + loc);
+        try{
+          arg.write(cl.getName() + "\t" + class_loc + "\t" + method.getName() + "\t" + loc + "\n");
+        }catch(IOException ex){
+          System.out.println("Error writing to file");
+        }
       }
     }
   }
 
-  public static void ListAllJavaFiles(String RootPath){
-    try(Stream<Path> walk = Files.walk(Paths.get(RootPath))){
-      List<String> result = walk.map(x -> x.toString()).filter(f->f.endsWith(".java")).collect(Collectors.toList());
-      for(String FileName : result){
-        System.out.println(FileName);
-        FileInputStream f = new FileInputStream(FileName);
-        try{
-          CompilationUnit cu = StaticJavaParser.parse(f);
-          VoidVisitor<?> methodNamePrinter = new MethodNamePrinter();
-          methodNamePrinter.visit(cu, null);  
-        }
-        catch(ParseProblemException e){
-          e.printStackTrace();
-        }
-      }
-      // result.forEach(System.out::println);
-    } catch(IOException e){
-      e.printStackTrace();
-    }
+
   }
-}
 
 
