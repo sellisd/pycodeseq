@@ -31,7 +31,7 @@ public class CodeSeq {
 
    public static void main(String[] args) throws Exception {
     String outputFilePath = "./java_data.tsv";
-    String RootPath = "../..";
+    String RootPath = "/mnt/Data/scratch/github_java";
     try{
       FileWriter outputFile = new FileWriter(outputFilePath);
       outputFile.write("class\tclass_lines\tmethod\tmethod_lines\n");
