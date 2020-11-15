@@ -61,9 +61,10 @@ def parse_notebooks(notebook_file, output):
     try:
         notebook_object = nbformat.read(notebook_file, as_version=4)
         for cell in notebook_object.cells:
-            output.writerow([notebook_file,
-                             len(cell.source.split('\n')),
-                             cell.cell_type])
+            if 'source' in cell:
+                output.writerow([notebook_file,
+                                 len(cell.source.split('\n')),
+                                 cell.cell_type])
     except nbformat.reader.NotJSONError:
         print(f"skipping {notebook_file}", file=sys.stderr)
 

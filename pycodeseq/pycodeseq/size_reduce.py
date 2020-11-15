@@ -19,4 +19,3 @@ def clean(root_path, extensions, dry_run):
                 print(file)
                 if (not dry_run):
                     file.unlink()
-
