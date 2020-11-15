@@ -78,7 +78,7 @@ def count(input_path, output, method):
 
     Example usage:
 
-    codeseq --input_path /mnt/Data/scratch --output data.tsv --method levels
+    pycodeseq --input_path /mnt/Data/scratch --output data.tsv --method levels
 
     """
     with open(output, 'w', newline='') as data_file:

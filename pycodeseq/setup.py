@@ -1,9 +1,9 @@
 from setuptools import setup
 
 setup(
-    name="codeseq",
-    version='0.220',
-    py_modules=['codeseq'],
+    name="pycodeseq",
+    version='0.2.0',
+    py_modules=['pycodeseq'],
     install_requires=[
         'pandas==1.1.4',
         'click==7.1.2',
@@ -11,6 +11,7 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        codeseq=codeseq.codeseq:count
+        pycodeseq=pycodeseq.pycodeseq:count
+        size_reduce=pycodeseq.size_reduce:clean
     ''',
 )
