@@ -36,16 +36,18 @@ public class CodeSeq {
       FileWriter outputFile = new FileWriter(outputFilePath);
       outputFile.write("class\tclass_lines\tmethod\tmethod_lines\n");
       try(Stream<Path> walk = Files.walk(Paths.get(RootPath))){
-        List<String> result = walk.map(x -> x.toString()).filter(f->f.endsWith(".java")).collect(Collectors.toList());
-        for(String fileName : result){
-          FileInputStream f = new FileInputStream(fileName);
-          try{
-            CompilationUnit cu = StaticJavaParser.parse(f);
-            VoidVisitor<FileWriter> methodNamePrinter = new MethodNamePrinter();
-            methodNamePrinter.visit(cu, outputFile);
-          }
-          catch(ParseProblemException e){
-            System.out.println("Skipping file: " + fileName);
+        List<String> result = walk.map(x -> x.toString()).filter(f -> f.endsWith(".java")).collect(Collectors.toList());
+        for (String fileName : result) {
+          Path fileNamePath = Paths.get(fileName);
+          if (Files.isRegularFile(fileNamePath)) {
+            FileInputStream f = new FileInputStream(fileName);
+            try {
+              CompilationUnit cu = StaticJavaParser.parse(f);
+              VoidVisitor<FileWriter> methodNamePrinter = new MethodNamePrinter();
+              methodNamePrinter.visit(cu, outputFile);
+            } catch (ParseProblemException e) {
+              System.out.println("Skipping file: " + fileName);
+            }
           }
         }
         outputFile.close();
