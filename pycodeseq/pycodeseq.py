@@ -25,7 +25,7 @@ def token_distribution(python_file, frequencies):
 
 
 def count_levels(python_file, output):
-    """Count number of classes functions and lines of code in function
+    """Count size and number of classes and functions by inspecting the AST.
 
     Args:
         python_file (string): File to parse
@@ -72,8 +72,9 @@ def parse_notebooks(notebook_file, output):
 @click.command()
 @click.option('--input_path', default='/mnt/Data/scratch',
               help='Path where input will be scanned recursively')
-@click.option('--output', default='data.tsv', help='Output file')
-@click.option('--method', default='levels', help='[levels|tokens|cells]')
+@click.option('--output', default='python_data.tsv', help='Output file')
+@click.option('--method', type=click.Choice(['levels', 'tokens', 'cells']),
+              default='levels', help='[levels|tokens|cells]')
 def count(input_path, output, method):
     """Count levels or tokens in multiple repositories
 
