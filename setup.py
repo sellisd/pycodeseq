@@ -12,7 +12,7 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        pycodeseq=pycodeseq.pycodeseq:count
-        size_reduce=pycodeseq.size_reduce:clean
+        pycodeseq=pycodeseq:count
+        size_reduce=size_reduce:clean
     ''',
 )

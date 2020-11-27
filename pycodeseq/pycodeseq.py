@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import ast
 import csv
 import itertools
@@ -38,7 +39,7 @@ def count_levels(python_file, output):
                 classes = [n for n in tree.body if isinstance(n, ast.ClassDef)]
                 for myclass in classes:
                     functions = myclass.body
-                    class_lines = myclass.end_lineno - myclass.lineno
+                    class_lines = myclass.end_lineno - myclass.lineno + 1
                     for function in functions:
                         if (isinstance(function,
                                        ast.FunctionDef)
@@ -83,8 +84,8 @@ def count(input_path, output, method):
     pycodeseq --input_path /mnt/Data/scratch --output data.tsv --method levels
 
     """
-    with open(output, 'w', newline='') as data_file:
-        outwriter = csv.writer(data_file, delimiter="\t")
+    with open(output, 'w') as data_file:
+        outwriter = csv.writer(data_file, delimiter="\t", lineterminator="\n")
         header = []
         if method == "levels":
             header = ['file', 'class', 'class_lines', 'function',
@@ -99,21 +100,16 @@ def count(input_path, output, method):
         else:
             print("Unknown method")
         outwriter.writerow(header)
-        for repository_owner in tqdm(list(Path(input_path).iterdir())):
-            for repository_dir in repository_owner.iterdir():
-                python_files = Path(repository_dir).glob(f"**/*{extension}")
-                if method == "levels":
-                    for f in python_files:
-                        if f.is_file():
-                            count_levels(f, outwriter)
-                elif method == "tokens":
-                    frequencies = Counter()
-                    for f in python_files:
-                        if f.is_file():
-                            token_distribution(f, frequencies)
-                        for i, (key, value) in enumerate(frequencies.most_common()):
-                            outwriter.writerow([i, len(key), value])
-                elif method == "cells":
-                    for f in python_files:
-                        if f.is_file():
-                            parse_notebooks(f, outwriter)
+        for python_file in tqdm(list(Path(input_path).glob(f"**/*{extension}"))):
+            if not python_file.is_file():
+                continue
+            if method == "levels":
+                count_levels(python_file, outwriter)
+            elif method == "tokens":
+                frequencies = Counter()
+                token_distribution(python_file, frequencies)
+            elif method == "cells":
+                parse_notebooks(python_file, outwriter)
+        if method == "tokens":
+            for i, (key, value) in enumerate(frequencies.most_common()):
+                outwriter.writerow([i, len(key), value])
