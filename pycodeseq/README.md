@@ -33,7 +33,7 @@ pycodeseq --input_path pyrepository --output stats.tsv --method cells
 To develop it is easier to clone and install editable:
 
 ```shell
-git clone
+git clone git@github.com:sellisd/pycodeseq.git
 cd pycodeseq/
 pip install -e .
 ```
