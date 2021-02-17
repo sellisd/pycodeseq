@@ -10,9 +10,10 @@ setup(
         'click==7.1.2',
         'tqdm==4.51.0'
     ],
-    entry_points='''
-        [console_scripts]
-        pycodeseq=pycodeseq:count
-        size_reduce=size_reduce:clean
-    ''',
+    entry_points={
+      'console_scripts':
+      [
+        'pycodeseq=pycodeseq.pycodeseq:count',
+      ]
+    },
 )
