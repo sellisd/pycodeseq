@@ -7,7 +7,7 @@ from collections import Counter
 import pytest
 from click.testing import CliRunner
 
-import pycodeseq
+from pycodeseq import pycodeseq
 
 
 def test_token_distribution():
