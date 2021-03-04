@@ -7,7 +7,7 @@ From jupyter notebooks the size in terms of lines of code of code or markdown ce
 ## Installing / Getting started
 
 ```shell
-python -m pip install .
+python -m pip install clone git+https://github.com/sellisd/pycodeseq.git@main
 ```
 
 To parse the ASTs in all python files found under `pyrepository` use the following:
