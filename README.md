@@ -1,3 +1,5 @@
+[![Python package](https://github.com/sellisd/pycodeseq/actions/workflows/python-package.yml/badge.svg)](https://github.com/sellisd/pycodeseq/actions/workflows/python-package.yml)
+
 # A tool for extracting statistics from python ASTs (Abstract Syntax Trees) and jupyter notebooks
 
 A command line program that recursively processes files to find either python scripts or jupyter notebooks and processes them to extract statistics. Python scripts and jupyter notebooks are treated in a very different maner.
